@@ -30,6 +30,7 @@ class Resque_Failure_RedisMultipleQueues implements Resque_Failure_Interface
 		$data = json_encode($data);
 		Resque::redis()->rpush($queue . '_failed', $data);
 		Resque::redis()->sadd('failed_queues', $queue . '_failed');
+        Resque_Stat::incr($queue . '_failed');
 	}
 }
 ?>

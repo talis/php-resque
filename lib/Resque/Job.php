@@ -230,13 +230,7 @@ class Resque_Job
 			$this->worker,
 			$this->queue
 		);
-
-        if (Resque_Failure::getBackend() == 'Resque_Failure_RedisMultipleQueues') {
-            Resque_Stat::incr($this->queue . '_failed');
-        } else {
-            Resque_Stat::incr('failed');
-        }
-		Resque_Stat::incr('failed:' . $this->worker);
+        Resque_Stat::incr('failed:' . $this->worker);
 	}
 
 	/**
