@@ -30,6 +30,12 @@ if(empty($QUEUE)) {
     die("Set QUEUE env var containing the list of queues to work.\n");
 }
 
+$RESQUE_FAILURE_BACKEND = getenv('RESQUE_FAILURE_BACKEND');
+Resque_Failure::setBackend($RESQUE_FAILURE_BACKEND);
+if(!empty($RESQUE_FAILURE_BACKEND)) {
+    Resque::redis()->sadd('failed_queues', 'failed');
+}
+
 /**
  * REDIS_BACKEND can have simple 'host:port' format or use a DSN-style format like this:
  * - redis://user:pass@host:port

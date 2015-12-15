@@ -3,11 +3,11 @@
  * Redis backend for storing failed Resque jobs.
  *
  * @package		Resque/Failure
- * @author		Chris Boulton <chris@bigcommerce.com>
+ * @author		Omar Qureshi <oq@talis.com>
  * @license		http://www.opensource.org/licenses/mit-license.php
  */
 
-class Resque_Failure_Redis implements Resque_Failure_Interface
+class Resque_Failure_RedisMultipleQueues implements Resque_Failure_Interface
 {
 	/**
 	 * Initialize a failed job class and save it (where appropriate).
@@ -28,8 +28,9 @@ class Resque_Failure_Redis implements Resque_Failure_Interface
 		$data->worker = (string)$worker;
 		$data->queue = $queue;
 		$data = json_encode($data);
-		Resque::redis()->rpush('failed', $data);
-        Resque_Stat::incr('failed');
+		Resque::redis()->rpush($queue . '_failed', $data);
+		Resque::redis()->sadd('failed_queues', $queue . '_failed');
+        Resque_Stat::incr($queue . '_failed');
 	}
 }
 ?>

@@ -180,4 +180,28 @@ class Resque_Tests_JobTest extends Resque_Tests_TestCase
         Resque_Redis::prefix('resque');
         $this->assertEquals(Resque::size($queue), 0);        
 	}
+
+	public function testMultipleFailedQueues()
+	{
+		Resque_Failure::setBackend('Resque_Failure_RedisMultipleQueues');
+
+		$payload = array(
+			'class' => 'Failing_Job',
+			'args' => null
+		);
+		$job = new Resque_Job('jobs', $payload);
+		$job->worker = $this->worker;
+		$this->worker->perform($job);
+		$job = new Resque_Job('other_jobs', $payload);
+		$job->worker = $this->worker;
+		$this->worker->perform($job);
+
+		$this->assertEquals(1, Resque_Stat::get('jobs_failed'));
+		$this->assertEquals(1, Resque_Stat::get('other_jobs_failed'));
+		$this->assertEquals(2, Resque_Stat::get('failed:'.$this->worker));
+		$this->assertEquals(1, count(Resque::redis()->lrange('jobs_failed', 0, -1)));
+		$this->assertEquals(1, count(Resque::redis()->lrange('other_jobs_failed', 0, -1)));
+		$this->assertEquals(1, Resque::redis()->sismember('failed_queues', 'jobs_failed'));
+		$this->assertEquals(1, Resque::redis()->sismember('failed_queues', 'other_jobs_failed'));
+	}
 }

@@ -19,5 +19,6 @@ class Resque_Tests_TestCase extends PHPUnit_Framework_TestCase
 
 		// Flush redis
 		$this->redis->flushAll();
+        Resque_Failure::setBackend(null);
 	}
 }
