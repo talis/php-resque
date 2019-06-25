@@ -1,6 +1,4 @@
 <?php
-declare(ticks = 1);
-
 /**
  * Resque worker that handles checking queues for jobs, fetching them
  * off the queues, running them and handling the result.
@@ -351,6 +349,7 @@ class Resque_Worker
 			return;
 		}
 
+		declare(ticks = 1);
 		pcntl_signal(SIGTERM, array($this, 'shutDownNow'));
 		pcntl_signal(SIGINT, array($this, 'shutDownNow'));
 		pcntl_signal(SIGQUIT, array($this, 'shutdown'));
